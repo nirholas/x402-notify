@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>x402-notify — one message, one payment, one receipt</title>
+<meta name="description" content="Message delivery for autonomous agents, billed per message: Telegram bot messages and SMTP email, each returning the delivery receipt in the same response. No plan, no per-seat pricing — pay with x402 micropayments in USDC on Base or Solana.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<meta property="og:type" content="website">
+<meta property="og:title" content="x402-notify — one message, one payment, one receipt">
+<meta property="og:description" content="Telegram and SMTP email delivered per message, with the proof of delivery in the response. USDC on Base or Solana.">
+<meta property="og:image" content="/og.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="x402-notify — one message, one payment, one receipt">
+<meta name="twitter:description" content="Telegram and SMTP email delivered per message, with the proof of delivery in the response. USDC on Base or Solana.">
+<meta name="twitter:image" content="/og.svg">
+<style>
+  :root {
+    --accent: #0052ff;
+    --bg: #ffffff; --fg: #0b1220; --muted: #5b6472;
+    --card: #f5f7fa; --border: #e3e7ee;
+    --code-bg: #0e1420; --code-fg: #d6e2f0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b1017; --fg: #e8edf4; --muted: #939daa;
+      --card: #131a24; --border: #232d3b;
+      --code-bg: #060b12; --code-fg: #cfdcec;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg); line-height: 1.6;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 0 20px 64px; }
+  header { padding: 64px 0 32px; }
+  .badge {
+    display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: .08em;
+    color: var(--accent); border: 1px solid var(--accent); border-radius: 999px;
+    padding: 3px 12px; margin-bottom: 16px; text-transform: uppercase;
+  }
+  h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); margin: 0 0 10px; letter-spacing: -0.02em; }
+  .tagline { font-size: 1.1rem; color: var(--muted); margin: 0 0 24px; }
+  section { padding: 30px 0 6px; border-top: 1px solid var(--border); }
+  h2 { font-size: 1.25rem; margin: 0 0 14px; }
+  pre { background: var(--code-bg); color: var(--code-fg); padding: 15px 17px; border-radius: 10px; overflow-x: auto; font-size: 13.5px; line-height: 1.55; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  p code, li code, td code { background: var(--card); padding: 1px 6px; border-radius: 5px; font-size: .92em; }
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+  .price { color: var(--accent); font-weight: 700; white-space: nowrap; }
+  ul { padding-left: 20px; }
+  footer { color: var(--muted); font-size: .9rem; padding-top: 28px; border-top: 1px solid var(--border); margin-top: 30px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="badge">x402 · pay per call</span>
+  <h1>x402-notify</h1>
+  <p class="tagline">
+    Real message delivery, billed per message — Telegram bot messages and SMTP email, each with the delivery receipt returned inline.
+    Every paid route answers an unpaid request with <code>402</code>, then returns the purchased
+    artifact in the body of the same request once you retry with an <code>X-PAYMENT</code> header.
+  </p>
+  <p>
+    <a href="/openapi.json">OpenAPI</a> ·
+    <a href="/.well-known/x402">x402 manifest</a> ·
+    <a href="/health">health</a> ·
+    <a href="https://github.com/nirholas/x402-notify">source</a>
+  </p>
+</header>
+
+<section>
+  <h2>Paid routes</h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Route</th><th>Price</th><th>Returns</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>POST /telegram</code></td>
+          <td class="price">$0.002</td>
+          <td>The delivery receipt: message id, chat, and the timestamp Telegram accepted it.</td>
+        </tr>
+        <tr>
+          <td><code>POST /email</code></td>
+          <td class="price">$0.002</td>
+          <td>The SMTP acceptance receipt: message id, accepted and rejected recipients.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p><code>GET /health</code> and <code>GET /.well-known/x402</code> are free and unauthenticated.</p>
+</section>
+
+<section>
+  <h2>Pay for one call</h2>
+  <pre><code>curl -s -X POST "$BASE/telegram" -H 'content-type: application/json' \
+  -d '{"chatId":"@your_channel","text":"deploy finished"}'   # 402 + accepts[]
+# then retry the same request with an X-PAYMENT header, or let x402-fetch do it</code></pre>
+  <p>
+    The 402 challenge carries the call schema for the route it guards
+    (<code>accepts[].outputSchema.input</code> / <code>.output</code>), so an agent that has never
+    read this page can still invoke the endpoint correctly.
+  </p>
+</section>
+
+<section>
+  <h2>Payment</h2>
+  <ul>
+    <li>USDC on <strong>Base</strong> (EIP-3009) or <strong>Solana</strong> (SPL transfer, facilitator-sponsored fees) — your wallet picks the rail.</li>
+    <li>Charged per request. No account, no API key, no subscription.</li>
+    <li>Settlement receipt returns in the <code>X-PAYMENT-RESPONSE</code> header and in the response body.</li>
+  </ul>
+</section>
+
+<footer>
+  x402-notify · speaks x402 v1 · <a href="https://github.com/nirholas/x402-notify">github.com/nirholas/x402-notify</a>
+</footer>
+
+</div>
+</body>
+</html>

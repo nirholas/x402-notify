@@ -70,6 +70,32 @@ POST {BASE_URL}/api/x402-checkout?action=encode
 
 Retry the original request with `X-PAYMENT: <x_payment>`. The `extra.feePayer` sponsor covers the SOL network fee, so the agent's wallet needs only USDC.
 
+### What the 402 tells you
+
+Each entry in `accepts[]` carries an `outputSchema` describing the route it guards:
+
+```jsonc
+"outputSchema": {
+  "input":  { "type": "http", "method": "POST", "bodyType": "json",
+              "bodyFields": { "chatId": { "type": "string" }, "text": { "type": "string" } } },
+  "output": { "type": "object", "properties": { "delivered": { "type": "boolean" } } }
+}
+```
+
+`input` is how to call the route, `output` is the shape of the 200 body. Both are generated from
+[`openapi.json`](https://github.com/nirholas/x402-notify/blob/main/openapi.json), so a client that only
+ever sees a 402 can still invoke the endpoint correctly and parse what comes back. Both rails carry
+the same schema.
+
+### Protocol version
+
+This service speaks **x402 v1**: the challenge is `{ x402Version: 1, error, accepts[] }`, which is
+what the `x402-fetch` clients in [`examples/`](https://github.com/nirholas/x402-notify/tree/main/examples)
+and every current wallet integration expect. x402 v2 — CAIP-2 network ids and
+`extensions.bazaar.schema` instead of `outputSchema` — is a future upgrade for agentcash
+compatibility; it changes the challenge shape, so it will land as a deliberate version bump rather
+than silently.
+
 ## 3. What you get back
 
 A `200` whose body **is** the artifact — every paid route in this service returns what you bought inline. No job ids, no polling, no webhooks. Alongside it:

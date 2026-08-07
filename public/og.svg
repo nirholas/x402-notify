@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="x402-notify — one message, one payment, one receipt">
+  <rect width="1200" height="630" fill="#0b1017"/>
+  <rect x="0" y="0" width="1200" height="8" fill="#0052ff"/>
+  <text x="80" y="200" font-family="-apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="34" fill="#0052ff" font-weight="600" letter-spacing="4">X402 · PAY PER CALL</text>
+  <text x="80" y="300" font-family="-apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="82" fill="#e8edf4" font-weight="700">x402-notify</text>
+  <text x="80" y="372" font-family="-apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="36" fill="#939daa">Per-message delivery with a receipt.</text>
+  <text x="80" y="500" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="30" fill="#e8edf4">POST /telegram  $0.002</text>
+  <text x="80" y="548" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="30" fill="#e8edf4">POST /email     $0.002</text>
+  <text x="80" y="596" font-family="-apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="26" fill="#5b6472">USDC on Base or Solana · HTTP 402</text>
+</svg>

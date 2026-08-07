@@ -73,11 +73,34 @@ export interface RailInfo {
 }
 
 /**
- * `"GET /products"` → `"$0.002"`. Keys are `<METHOD> <path>`; the path may use
+ * What one paid route costs — and, for an agent that has never read the OpenAPI
+ * document, how to call it and what it gets back.
+ */
+export interface RouteSpec {
+  /** Price like `"$0.002"`, quoted in USD and charged in USDC. */
+  price: string;
+  /** Human description shown in the 402 challenge and the payer's wallet. */
+  description?: string;
+  /**
+   * x402 Bazaar-shaped `{ input, output }` pair published verbatim in every
+   * `accepts[]` entry, so the 402 alone is enough to invoke the route.
+   * Supplied from `ROUTE_SCHEMAS` in `./schemas.js`, generated from openapi.json.
+   */
+  outputSchema?: Record<string, unknown>;
+}
+
+/**
+ * `"GET /products"` → `"$0.002"`, or a full {@link RouteSpec} when the route
+ * also publishes a schema. Keys are `<METHOD> <path>`; the path may use
  * `:param` for a single segment, `*` for a single segment, or a trailing `**`
  * for the rest — so `"GET /receipt/:txHash"` prices every receipt lookup.
  */
-export type RoutePrices = Record<string, string>;
+export type RoutePrices = Record<string, string | RouteSpec>;
+
+/** Widen the `"$0.002"` shorthand to a full {@link RouteSpec}. */
+export function normalizeRouteSpec(spec: string | RouteSpec): RouteSpec {
+  return typeof spec === "string" ? { price: spec } : spec;
+}
 
 /**
  * Match a `<METHOD> <path>` route key against a live request.
@@ -148,11 +171,16 @@ function resourceUrl(req: Request, baseUrl?: string): string {
 /**
  * Build the `accepts` array: one canonical x402 `PaymentRequirements` per rail.
  * Amounts are USDC atomic units (6 decimals) — `$0.002` → `"2000"`.
+ *
+ * `outputSchema` rides along on *every* rail: a client only ever reads the
+ * accept entry it can pay, so omitting it from one rail would hide the call
+ * schema from half the wallets.
  */
 function buildAccepts(
   price: string,
   resource: string,
   description: string,
+  outputSchema?: Record<string, unknown>,
 ): PaymentRequirements[] {
   const accepts: PaymentRequirements[] = [];
 
@@ -170,6 +198,7 @@ function buildAccepts(
         resource: resource as `${string}://${string}`,
         description,
         mimeType: "application/json",
+        outputSchema,
         payTo: rail.payTo,
         maxTimeoutSeconds: 60,
         asset: priced.asset.address,
@@ -191,6 +220,7 @@ function buildAccepts(
         resource: resource as `${string}://${string}`,
         description,
         mimeType: "application/json",
+        outputSchema,
         payTo: rail.payTo,
         maxTimeoutSeconds: 60,
         asset: priced.asset.address,
@@ -230,9 +260,12 @@ function challenge(res: Response, accepts: PaymentRequirements[], error?: string
  *   app.use(paywall({ "GET /products": "$0.002" }, { service: "x402-grocery" }));
  */
 export function paywall(routePrices: RoutePrices, opts: PaywallOptions): RequestHandler {
+  const specs: Record<string, RouteSpec> = {};
   const descriptions: Record<string, string> = {};
-  for (const key of Object.keys(routePrices)) {
-    descriptions[key] = opts.descriptions?.[key] ?? `${opts.service} — ${key}`;
+  for (const [key, value] of Object.entries(routePrices)) {
+    const spec = normalizeRouteSpec(value);
+    specs[key] = spec;
+    descriptions[key] = opts.descriptions?.[key] ?? spec.description ?? `${opts.service} — ${key}`;
   }
 
   const patterns = Object.keys(routePrices);
@@ -240,10 +273,10 @@ export function paywall(routePrices: RoutePrices, opts: PaywallOptions): Request
   return async function paywallMiddleware(req: Request, res: Response, next: NextFunction) {
     const key = patterns.find((pattern) => routeMatches(pattern, req.method, req.path));
     if (!key) return next(); // free route
-    const price = routePrices[key];
+    const spec = specs[key];
 
     const resource = resourceUrl(req, opts.baseUrl ?? process.env.PUBLIC_BASE_URL);
-    const accepts = buildAccepts(price, resource, descriptions[key]);
+    const accepts = buildAccepts(spec.price, resource, descriptions[key], spec.outputSchema);
 
     if (accepts.length === 0) {
       res.status(500).json({
