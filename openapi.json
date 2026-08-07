@@ -12,7 +12,8 @@
       "name": "nirholas",
       "email": "nichxbt@gmail.com",
       "url": "https://github.com/nirholas/x402-notify"
-    }
+    },
+    "x-guidance": "Real message delivery per-message: Telegram bot messages and SMTP email with delivery receipts in-response. Every paid route answers an unpaid request with HTTP 402 and a list of accepted payments (USDC on Base or Solana — pick either), then returns the purchased artifact in the body of the same request once you retry with an X-PAYMENT header. Payment and delivery happen in one round trip; nothing is promised for later. POST /telegram ($0.002) returns {messageId, chat, deliveredAt} POST /email ($0.002) returns SMTP acceptance receipt"
   },
   "servers": [
     {
@@ -209,6 +210,18 @@
           "502": {
             "$ref": "#/components/responses/UpstreamError"
           }
+        },
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.002000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         }
       }
     },
@@ -411,6 +424,18 @@
           "502": {
             "$ref": "#/components/responses/UpstreamError"
           }
+        },
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.002000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
         }
       }
     },

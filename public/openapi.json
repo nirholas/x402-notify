@@ -1,0 +1,681 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "x402-notify",
+    "version": "0.1.0",
+    "description": "Real message delivery per-message: Telegram bot messages and SMTP email with delivery receipts in-response\n\nEvery paid route returns the purchased artifact in the 200 response body. Pay in USDC on Base or Solana — your client picks the rail.",
+    "license": {
+      "name": "Apache-2.0",
+      "identifier": "Apache-2.0"
+    },
+    "contact": {
+      "name": "nirholas",
+      "email": "nichxbt@gmail.com",
+      "url": "https://github.com/nirholas/x402-notify"
+    },
+    "x-guidance": "Real message delivery per-message: Telegram bot messages and SMTP email with delivery receipts in-response. Every paid route answers an unpaid request with HTTP 402 and a list of accepted payments (USDC on Base or Solana — pick either), then returns the purchased artifact in the body of the same request once you retry with an X-PAYMENT header. Payment and delivery happen in one round trip; nothing is promised for later. POST /telegram ($0.002) returns {messageId, chat, deliveredAt} POST /email ($0.002) returns SMTP acceptance receipt"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4025",
+      "description": "Local development"
+    },
+    {
+      "url": "https://your-deployment.example.com",
+      "description": "Your deployment"
+    }
+  ],
+  "tags": [
+    {
+      "name": "paid",
+      "description": "x402-paid routes. An unpaid request answers 402 with both rails."
+    },
+    {
+      "name": "free",
+      "description": "Free routes. No payment required."
+    }
+  ],
+  "paths": {
+    "/telegram": {
+      "post": {
+        "operationId": "sendTelegram",
+        "summary": "Deliver one Telegram message to a chat, group or channel.",
+        "description": "Posts through a Telegram bot. `chatId` is a numeric chat id (negative for groups) or an `@channelusername` the bot administers. Returns the permanent `messageId` and the chat as Telegram resolved it — type, title and username — so an agent can act on the message it just sent.\n\n`parseMode` is `Markdown`, `MarkdownV2` or `HTML`; omit it for plain text. `silent: true` delivers without a notification sound.\n\nPrice: **$0.002** in USDC — payable on Base (EVM) or Solana.",
+        "tags": [
+          "paid"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "chatId": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "parseMode": {
+                    "type": "string"
+                  },
+                  "silent": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "example": {
+                "chatId": "123456789",
+                "text": "Deploy finished - all 412 tests green.",
+                "parseMode": "Markdown",
+                "silent": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "`{messageId, chat, deliveredAt}` — the message id and the chat Telegram resolved, usable later to reply to or edit the message",
+            "headers": {
+              "X-PAYMENT-RESPONSE": {
+                "description": "Base64 JSON settlement receipt (rail, network, transaction, payer).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "source": {
+                      "type": "string"
+                    },
+                    "channel": {
+                      "type": "string"
+                    },
+                    "delivered": {
+                      "type": "boolean"
+                    },
+                    "messageId": {
+                      "type": "integer"
+                    },
+                    "chat": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "username": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        }
+                      }
+                    },
+                    "deliveredAt": {
+                      "type": "string"
+                    },
+                    "textLength": {
+                      "type": "integer"
+                    },
+                    "parseMode": {
+                      "type": "string"
+                    },
+                    "silent": {
+                      "type": "boolean"
+                    },
+                    "dryRunReason": {
+                      "type": "string"
+                    },
+                    "payment": {
+                      "type": "object",
+                      "properties": {
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "rail": {
+                          "type": "string"
+                        },
+                        "network": {
+                          "type": "string"
+                        },
+                        "transaction": {
+                          "type": "string"
+                        },
+                        "payer": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "string"
+                        },
+                        "asset": {
+                          "type": "string"
+                        },
+                        "resource": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "source": "fixture",
+                  "channel": "telegram",
+                  "delivered": false,
+                  "messageId": 188435,
+                  "chat": {
+                    "id": 123456789,
+                    "type": "private",
+                    "title": null,
+                    "username": null
+                  },
+                  "deliveredAt": "2026-08-07T12:00:00.000Z",
+                  "textLength": 38,
+                  "parseMode": "Markdown",
+                  "silent": false,
+                  "dryRunReason": "TELEGRAM_BOT_TOKEN is not set, so no message was sent. The request was validated exactly as a live send would be, and this is the receipt shape you will get once a token is configured.",
+                  "payment": {
+                    "success": true,
+                    "rail": "evm",
+                    "network": "base-sepolia",
+                    "transaction": "0x9c1f…",
+                    "payer": "0xA11ce…",
+                    "amount": "2000",
+                    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                    "resource": "http://localhost:4025/telegram"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "502": {
+            "$ref": "#/components/responses/UpstreamError"
+          }
+        },
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.002000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        }
+      }
+    },
+    "/email": {
+      "post": {
+        "operationId": "sendEmail",
+        "summary": "Relay one email over SMTP and return the server's acceptance receipt.",
+        "description": "Relays through any SMTP server and returns the strongest delivery evidence SMTP offers: the literal reply the receiving server gave when it took responsibility for the message. `to`, `cc` and `bcc` accept a single address, a comma-separated string, or an array (up to 50 each). Provide `text`, `html`, or both — the receiving client picks.\n\nA multi-recipient send is one call and one payment. `accepted` and `rejected` split the recipient list the way the server actually answered, so a partial acceptance is visible rather than hidden behind a single boolean.\n\nPrice: **$0.002** in USDC — payable on Base (EVM) or Solana.",
+        "tags": [
+          "paid"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "to": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "from": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "to": [
+                  "dana@example.com"
+                ],
+                "subject": "Deploy finished",
+                "text": "All 412 tests green. Released v2.4.0 to production.",
+                "from": "Acme Alerts <alerts@acme.example>"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "the SMTP acceptance receipt — raw `250 …` response, reply code, Message-ID, host — plus accepted/rejected recipients and the envelope as sent",
+            "headers": {
+              "X-PAYMENT-RESPONSE": {
+                "description": "Base64 JSON settlement receipt (rail, network, transaction, payer).",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "source": {
+                      "type": "string"
+                    },
+                    "channel": {
+                      "type": "string"
+                    },
+                    "delivered": {
+                      "type": "boolean"
+                    },
+                    "receipt": {
+                      "type": "object",
+                      "properties": {
+                        "messageId": {
+                          "type": "string"
+                        },
+                        "smtpResponse": {
+                          "type": "string"
+                        },
+                        "smtpCode": {
+                          "type": "integer"
+                        },
+                        "host": {
+                          "type": "string"
+                        },
+                        "acceptedAt": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "accepted": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "rejected": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "envelope": {
+                      "type": "object",
+                      "properties": {
+                        "from": {
+                          "type": "string"
+                        },
+                        "to": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "subject": {
+                      "type": "string"
+                    },
+                    "bodyBytes": {
+                      "type": "integer"
+                    },
+                    "dryRunReason": {
+                      "type": "string"
+                    },
+                    "payment": {
+                      "type": "object",
+                      "properties": {
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "rail": {
+                          "type": "string"
+                        },
+                        "network": {
+                          "type": "string"
+                        },
+                        "transaction": {
+                          "type": "string"
+                        },
+                        "payer": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "string"
+                        },
+                        "asset": {
+                          "type": "string"
+                        },
+                        "resource": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "source": "fixture",
+                  "channel": "email",
+                  "delivered": false,
+                  "receipt": {
+                    "messageId": "<51ecc5.x402-notify@acme.example>",
+                    "smtpResponse": "250 2.0.0 OK (dry run — SMTP_HOST is not configured)",
+                    "smtpCode": 250,
+                    "host": "",
+                    "acceptedAt": "2026-08-07T12:00:00.000Z"
+                  },
+                  "accepted": [
+                    "dana@example.com"
+                  ],
+                  "rejected": [],
+                  "envelope": {
+                    "from": "Acme Alerts <alerts@acme.example>",
+                    "to": [
+                      "dana@example.com"
+                    ]
+                  },
+                  "subject": "Deploy finished",
+                  "bodyBytes": 51,
+                  "dryRunReason": "SMTP_HOST is not set, so no mail was relayed. The request was validated exactly as a live send would be, and this is the receipt shape you will get once SMTP is configured.",
+                  "payment": {
+                    "success": true,
+                    "rail": "solana",
+                    "network": "solana",
+                    "transaction": "5xkQ…",
+                    "payer": "9wFh…",
+                    "amount": "2000",
+                    "asset": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                    "resource": "http://localhost:4025/email"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "402": {
+            "$ref": "#/components/responses/PaymentRequired"
+          },
+          "502": {
+            "$ref": "#/components/responses/UpstreamError"
+          }
+        },
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.002000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ]
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health",
+        "summary": "Liveness probe (free)",
+        "description": "Free. Reports the active data source and the payment rails this instance advertises.",
+        "tags": [
+          "free"
+        ],
+        "responses": {
+          "200": {
+            "description": "Service status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "service": {
+                      "type": "string"
+                    },
+                    "source": {
+                      "type": "string"
+                    },
+                    "rails": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rail": {
+                            "type": "string"
+                          },
+                          "network": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.well-known/x402": {
+      "get": {
+        "operationId": "manifest",
+        "summary": "x402 discovery manifest (free)",
+        "description": "Free. Machine-readable description of every paid resource and both payment rails.",
+        "tags": [
+          "free"
+        ],
+        "responses": {
+          "200": {
+            "description": "Discovery manifest",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PaymentRequirements": {
+        "type": "object",
+        "description": "One accepted way to pay, as defined by the x402 protocol.",
+        "required": [
+          "scheme",
+          "network",
+          "maxAmountRequired",
+          "resource",
+          "description",
+          "mimeType",
+          "payTo",
+          "maxTimeoutSeconds",
+          "asset"
+        ],
+        "properties": {
+          "scheme": {
+            "type": "string",
+            "enum": [
+              "exact"
+            ]
+          },
+          "network": {
+            "type": "string",
+            "enum": [
+              "base-sepolia",
+              "base",
+              "solana",
+              "solana-devnet"
+            ],
+            "description": "The settlement network. Both an EVM and a Solana entry are always offered."
+          },
+          "maxAmountRequired": {
+            "type": "string",
+            "description": "Price in USDC atomic units (6 decimals). $0.002 → \"2000\"."
+          },
+          "resource": {
+            "type": "string",
+            "format": "uri"
+          },
+          "description": {
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "payTo": {
+            "type": "string",
+            "description": "EVM address or Solana base58 address."
+          },
+          "maxTimeoutSeconds": {
+            "type": "integer"
+          },
+          "asset": {
+            "type": "string",
+            "description": "USDC contract address (EVM) or SPL mint (Solana)."
+          },
+          "extra": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "PaymentRequiredResponse": {
+        "type": "object",
+        "required": [
+          "x402Version",
+          "accepts"
+        ],
+        "properties": {
+          "x402Version": {
+            "type": "integer",
+            "const": 1
+          },
+          "error": {
+            "type": "string"
+          },
+          "accepts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentRequirements"
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "responses": {
+      "PaymentRequired": {
+        "description": "Payment required. The body lists both rails — pay with USDC on Base or on Solana, then retry with an `X-PAYMENT` header.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PaymentRequiredResponse"
+            },
+            "example": {
+              "x402Version": 1,
+              "error": "X-PAYMENT header is required",
+              "accepts": [
+                {
+                  "scheme": "exact",
+                  "network": "base-sepolia",
+                  "maxAmountRequired": "2000",
+                  "resource": "http://localhost:4025/telegram",
+                  "description": "Deliver one Telegram message to a chat, group or channel.",
+                  "mimeType": "application/json",
+                  "payTo": "0x40252CFDF8B20Ed757D61ff157719F33Ec332402",
+                  "maxTimeoutSeconds": 60,
+                  "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                  "extra": {
+                    "name": "USDC",
+                    "version": "2"
+                  }
+                },
+                {
+                  "scheme": "exact",
+                  "network": "solana",
+                  "maxAmountRequired": "2000",
+                  "resource": "http://localhost:4025/telegram",
+                  "description": "Deliver one Telegram message to a chat, group or channel.",
+                  "mimeType": "application/json",
+                  "payTo": "WwwuGbqHrwF5RG89KhUbmRWEvjnRH9k5kVM5p7T3WwW",
+                  "maxTimeoutSeconds": 60,
+                  "asset": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                  "extra": {
+                    "name": "USD Coin",
+                    "decimals": 6,
+                    "feePayer": "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4",
+                    "amount": "2000"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "BadRequest": {
+        "description": "Malformed request parameters.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "UpstreamError": {
+        "description": "The upstream provider failed.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}
