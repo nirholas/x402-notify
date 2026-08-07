@@ -1,0 +1,261 @@
+{
+  "x402Version": 1,
+  "name": "x402-notify",
+  "description": "Real message delivery per-message: Telegram bot messages and SMTP email with delivery receipts in-response",
+  "homepage": "https://nirholas.github.io/x402-notify/",
+  "repository": "https://github.com/nirholas/x402-notify",
+  "contact": "nichxbt@gmail.com",
+  "documentation": "https://nirholas.github.io/x402-notify/api",
+  "skill": "https://github.com/nirholas/x402-notify/blob/main/skill.md",
+  "openapi": "https://github.com/nirholas/x402-notify/blob/main/openapi.json",
+  "resources": [
+    {
+      "resource": "POST /telegram",
+      "description": "Deliver one Telegram message to a chat, group or channel.",
+      "price": "$0.002",
+      "accepts": [
+        {
+          "scheme": "exact",
+          "network": "base-sepolia",
+          "asset": "USDC",
+          "assetAddress": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+          "payTo": "0x40252CFDF8B20Ed757D61ff157719F33Ec332402",
+          "maxAmountRequired": "2000"
+        },
+        {
+          "scheme": "exact",
+          "network": "solana",
+          "asset": "USDC",
+          "assetAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "payTo": "WwwuGbqHrwF5RG89KhUbmRWEvjnRH9k5kVM5p7T3WwW",
+          "maxAmountRequired": "2000",
+          "extra": {
+            "feePayer": "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4",
+            "decimals": 6
+          }
+        }
+      ],
+      "network": "base-sepolia",
+      "asset": "USDC",
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string"
+          },
+          "delivered": {
+            "type": "boolean"
+          },
+          "messageId": {
+            "type": "integer"
+          },
+          "chat": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "type": {
+                "type": "string"
+              },
+              "title": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "username": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
+            }
+          },
+          "deliveredAt": {
+            "type": "string"
+          },
+          "textLength": {
+            "type": "integer"
+          },
+          "parseMode": {
+            "type": "string"
+          },
+          "silent": {
+            "type": "boolean"
+          },
+          "dryRunReason": {
+            "type": "string"
+          },
+          "payment": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "rail": {
+                "type": "string"
+              },
+              "network": {
+                "type": "string"
+              },
+              "transaction": {
+                "type": "string"
+              },
+              "payer": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "string"
+              },
+              "asset": {
+                "type": "string"
+              },
+              "resource": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource": "POST /email",
+      "description": "Relay one email over SMTP and return the server's acceptance receipt.",
+      "price": "$0.002",
+      "accepts": [
+        {
+          "scheme": "exact",
+          "network": "base-sepolia",
+          "asset": "USDC",
+          "assetAddress": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+          "payTo": "0x40252CFDF8B20Ed757D61ff157719F33Ec332402",
+          "maxAmountRequired": "2000"
+        },
+        {
+          "scheme": "exact",
+          "network": "solana",
+          "asset": "USDC",
+          "assetAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "payTo": "WwwuGbqHrwF5RG89KhUbmRWEvjnRH9k5kVM5p7T3WwW",
+          "maxAmountRequired": "2000",
+          "extra": {
+            "feePayer": "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4",
+            "decimals": 6
+          }
+        }
+      ],
+      "network": "base-sepolia",
+      "asset": "USDC",
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string"
+          },
+          "delivered": {
+            "type": "boolean"
+          },
+          "receipt": {
+            "type": "object",
+            "properties": {
+              "messageId": {
+                "type": "string"
+              },
+              "smtpResponse": {
+                "type": "string"
+              },
+              "smtpCode": {
+                "type": "integer"
+              },
+              "host": {
+                "type": "string"
+              },
+              "acceptedAt": {
+                "type": "string"
+              }
+            }
+          },
+          "accepted": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rejected": {
+            "type": "array",
+            "items": {}
+          },
+          "envelope": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "subject": {
+            "type": "string"
+          },
+          "bodyBytes": {
+            "type": "integer"
+          },
+          "dryRunReason": {
+            "type": "string"
+          },
+          "payment": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "rail": {
+                "type": "string"
+              },
+              "network": {
+                "type": "string"
+              },
+              "transaction": {
+                "type": "string"
+              },
+              "payer": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "string"
+              },
+              "asset": {
+                "type": "string"
+              },
+              "resource": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "free": [
+    {
+      "resource": "GET /health",
+      "description": "Liveness, active data source, and configured payment rails"
+    },
+    {
+      "resource": "GET /.well-known/x402",
+      "description": "This manifest"
+    }
+  ]
+}
