@@ -119,3 +119,26 @@ Part of the [x402 Suite](https://github.com/nirholas/x402-suite).
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=nirholas/x402-notify&type=Date)](https://www.star-history.com/#nirholas/x402-notify&Date)
+
+<!-- three.ws:growth -->
+## Support the project
+
+If x402-notify saves you time, **[star it on GitHub](https://github.com/nirholas/x402-notify)**. Stars are how other developers and AI agents find the repositories worth trusting, and they cost you one click.
+
+Know someone who would use it? [Post on X](https://twitter.com/intent/tweet?text=x402-notify%3A%20Real%20message%20delivery%20per-message%3A%20Telegram%20bot%20messages%20and%20SMTP%20email%20with%20delivery%20receipts&url=https%3A%2F%2Fgithub.com%2Fnirholas%2Fx402-notify) · [Share on Bluesky](https://bsky.app/intent/compose?text=x402-notify%3A%20Real%20message%20delivery%20per-message%3A%20Telegram%20bot%20messages%20and%20SMTP%20email%20with%20delivery%20receipts%20https%3A%2F%2Fgithub.com%2Fnirholas%2Fx402-notify) · [Share on LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fgithub.com%2Fnirholas%2Fx402-notify) · [Submit to Hacker News](https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fgithub.com%2Fnirholas%2Fx402-notify&t=x402-notify%3A%20Real%20message%20delivery%20per-message%3A%20Telegram%20bot%20messages%20and%20SMTP%20email%20with%20delivery%20receipts) · [Share on Reddit](https://www.reddit.com/submit?url=https%3A%2F%2Fgithub.com%2Fnirholas%2Fx402-notify&title=x402-notify%3A%20Real%20message%20delivery%20per-message%3A%20Telegram%20bot%20messages%20and%20SMTP%20email%20with%20delivery%20receipts)
+
+## Built for AI agents too
+
+Coding agents and LLM tooling can read this repo directly: [AGENTS.md](./AGENTS.md), [llms.txt](./llms.txt), [llms-full.txt](./llms-full.txt). Point an agent at `https://github.com/nirholas/x402-notify` and it has the context it needs.
+
+## More from the same author
+
+- [All repositories by nirholas](https://github.com/nirholas/nirholas#readme): the full catalog, grouped by topic
+- [three.ws](https://three.ws): the platform for 3D AI agents with Solana wallets, a skill marketplace and x402 payments
+- Questions or ideas: [open an issue](https://github.com/nirholas/x402-notify/issues) or [start a discussion](https://github.com/nirholas/x402-notify/discussions)
+
+## Contributors
+
+[![Contributors](https://contrib.rocks/image?repo=nirholas/x402-notify)](https://github.com/nirholas/x402-notify/graphs/contributors)
+
+<!-- /three.ws:growth -->

@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+title: "x402-notify"
+abstract: "Real message delivery per-message: Telegram bot messages and SMTP email with delivery receipts in-response"
+license: Apache-2.0
+repository-code: "https://github.com/nirholas/x402-notify"
+url: "https://three.ws"
+authors:
+  - name: three.ws
+    website: "https://three.ws"
