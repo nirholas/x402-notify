@@ -1,0 +1,18 @@
+{
+  "name": "x402-notify",
+  "version": "0.1.0",
+  "description": "Run the x402-notify service and send Telegram bot messages and SMTP email, each paid per message via x402, with delivery receipts in the response.",
+  "author": {
+    "name": "nirholas"
+  },
+  "repository": "https://github.com/nirholas/x402-notify",
+  "homepage": "https://nirholas.github.io/x402-notify/",
+  "license": "Apache-2.0",
+  "keywords": [
+    "x402",
+    "notifications",
+    "telegram",
+    "smtp",
+    "usdc"
+  ]
+}

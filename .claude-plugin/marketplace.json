@@ -1,0 +1,22 @@
+{
+  "name": "x402-notify",
+  "owner": {
+    "name": "nirholas"
+  },
+  "description": "Run the x402-notify service and send Telegram bot messages and SMTP email, each paid per message via x402, with delivery receipts in the response.",
+  "plugins": [
+    {
+      "name": "x402-notify",
+      "source": "./plugins/x402-notify",
+      "description": "Run the x402-notify service and send Telegram bot messages and SMTP email, each paid per message via x402, with delivery receipts in the response.",
+      "category": "automation",
+      "tags": [
+        "x402",
+        "notifications",
+        "telegram",
+        "smtp",
+        "usdc"
+      ]
+    }
+  ]
+}
